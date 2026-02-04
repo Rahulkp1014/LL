@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Signup | Luster Lane</title>
+    <link rel="stylesheet" href="login-style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="form-container">
+        <div class="logo">
+            <a href="index.php">Luster Lane</a>
+        </div>
+        <div class="tab-buttons">
+            <button id="login-tab-btn" class="tab-btn active" data-form="login-form">Login</button>
+            <button id="signup-tab-btn" class="tab-btn" data-form="signup-form">Sign Up</button>
+        </div>
+
+        <form id="login-form" class="form-content active">
+            <div class="form-group">
+                <label for="login-email">Email Address</label>
+                <input type="email" id="login-email" required>
+            </div>
+            <div class="form-group">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" required>
+            </div>
+            <div class="form-options">
+                <a href="#" class="forgot-password">Forgot Password?</a>
+            </div>
+            <p class="form-feedback" id="login-feedback"></p>
+            <button type="submit" class="submit-btn">Login</button>
+        </form>
+
+        <form id="signup-form" class="form-content">
+            <div class="form-group">
+                <label for="signup-name">Full Name</label>
+                <input type="text" id="signup-name" required>
+            </div>
+            <div class="form-group">
+                <label for="signup-email">Email Address</label>
+                <input type="email" id="signup-email" required>
+            </div>
+            <div class="form-group">
+                <label for="signup-password">Password</label>
+                <input type="password" id="signup-password" required>
+            </div>
+            <div class="form-group">
+                <label for="signup-confirm-password">Confirm Password</label>
+                <input type="password" id="signup-confirm-password" required>
+            </div>
+            <p class="form-feedback" id="signup-feedback"></p>
+            <button type="submit" class="submit-btn">Create Account</button>
+        </form>
+    </div>
+
+    <script src="login.js"></script>
+
+</body>
+</html>
