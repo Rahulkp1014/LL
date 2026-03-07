@@ -1,92 +1,74 @@
-<?php
-// This PHP code will run before any HTML is sent to the browser.
-require 'config.php'; // Connect to the database
-
-// SQL query to fetch products. Let's get 4 for the "Best Sellers" section.
-$sql = "SELECT id, name, price, image_url FROM products ORDER BY id DESC LIMIT 4";
-$result = $conn->query($sql);
-
-// We will store the products in an array
-$products = [];
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $products[] = $row;
-    }
-}
-$conn->close();
-?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="LusterLaneApp">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home | Luster Lane</title>
-    <link rel="stylesheet" href="home-style.css">
-</head>
-<body>
+    <title>Luster Lane | Fine Jewelry</title>
     
-    <?php include 'header.php'; ?> 
+    <!-- Unified Premium Stylesheet -->
+    <link rel="stylesheet" href="app.css">
 
-    <section class="hero">
-        <div class="H-text">
-            <h2>LUSTER LANE</h2>
-            <h3>Discover timeless jewelry crafted to sparkle in every moment.</h3>
-            <a href="shop.php" class="btn">Shop Now</a>
+    <!-- Angular JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-route.js"></script>
+    
+    <!-- Application Logic -->
+    <script src="app.js"></script>
+</head>
+<body ng-controller="MainController">
+
+    <!-- Global Sticky Header (Glassmorphism) -->
+    <header>
+        <div class="logo">
+            <a href="#!/">Luster Lane</a>
         </div>
-    </section>
-
-    <section class="collections">
-        <h2>Shop by Collection</h2>
-        <div class="collection-grid">
-            <div class="collection-card"> <img src="media/others/rings.png" alt="Rings"> <h3>Rings</h3> </div>
-            <div class="collection-card"> <img src="media/others/necklace-preview (2).png" alt="Necklaces"> <h3>Necklaces</h3> </div>
-            <div class="collection-card"> <img src="media/others/earring-preview.png" alt="Earrings"> <h3>Earrings</h3> </div>
-            <div class="collection-card"> <img src="media/others/Untitled (2).png" alt="Wedding Bands"> <h3>Wedding Bands</h3> </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#!/">Home</a></li>
+                <li><a href="#!/shop">Shop</a></li>
+                <li><a href="#!/about">About</a></li>
+                <li><a href="#!/contact">Contact</a></li>
+            </ul>
+        </nav>
+        <div class="nav-actions">
+            <!-- Authenticated state -->
+            <span ng-if="currentUser" style="font-size: 0.9rem; color: var(--text-secondary);">Welcome, {{ currentUser.name }}</span>
+            <a href="" ng-if="currentUser" ng-click="logout()" style="font-size: 0.9rem; font-weight: 500; text-decoration: underline;">Logout</a>
+            
+            <!-- Unauthenticated state -->
+            <a href="#!/login" ng-if="!currentUser" class="btn btn-primary" style="padding: 0.5rem 1.2rem; font-size: 0.8rem;">Login / Signup</a>
+            
+            <!-- Cart Icon -->
+            <a href="#!/cart" class="cart-btn">
+                <span>Cart</span>
+                <span class="cart-count-badge" ng-bind="cartCount">0</span>
+            </a>
         </div>
-    </section>
+    </header>
 
+    <!-- Main AngularJS View Container -->
+    <div class="main-view-container" ng-view autoscroll="true"></div>
 
-    <section class="bestsellers">
-    <h2 class="section-title">Best Sellers</h2>
-    <div class="grid">
-
-        <?php foreach ($products as $product): ?>
-            <div class="product-card" 
-                 data-id="<?php echo htmlspecialchars($product['id']); ?>" 
-                 data-name="<?php echo htmlspecialchars($product['name']); ?>" 
-                 data-price="<?php echo htmlspecialchars($product['price']); ?>" 
-                 data-image="<?php echo htmlspecialchars($product['image_url']); ?>">
-                
-                <div class="product-image-container">
-                    <img src="<?php echo htmlspecialchars($product['image_url']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>">
-                </div>
-                
-                <h3><?php echo htmlspecialchars($product['name']); ?></h3>
-                <p>$<?php echo number_format($product['price'], 2); ?></p>
-                <button class="btn add-to-cart-btn">Add to Cart</button>
-            </div>
-        <?php endforeach; ?>
-
-        <?php if (empty($products)): ?>
-            <p>No products found.</p>
-        <?php endif; ?>
-
-    </div>
-</section>
+    <!-- Global Elegant Footer -->
     <footer>
-        <section class="newsletter">
-            <h2>Stay Updated with Luster Lane</h2>
-            <p>Join our mailing list to get exclusive offers & new arrivals.</p>
-            <form id="newsletter-form">
-                <input type="email" id="newsletter-email" placeholder="Enter your email" aria-label="Email Address">
-                <button type="submit">Subscribe</button>
-            </form>
-            <p id="newsletter-feedback" class="feedback-message"></p>
-        </section>
-        <p>© 2025 Luster Lane | All Rights Reserved</p>
+        <div class="container footer-main">
+            <div class="footer-brand">
+                <h2>Luster Lane</h2>
+                <p>Discover timeless jewelry crafted to sparkle in every moment. Crafted with precision, worn with pride.</p>
+            </div>
+            <div class="footer-newsletter">
+                <h3 style="color: #fff; margin-bottom: 1rem; font-family: 'Inter', sans-serif; font-size: 1.1rem; text-transform: uppercase;">Join our newsletter</h3>
+                <p style="color: rgba(255,255,255,0.7); font-size: 0.95rem;">Get exclusive offers & new arrivals straight to your inbox.</p>
+                <form class="newsletter-form" ng-submit="subscribe()">
+                    <input type="email" ng-model="newsletterEmail" placeholder="Enter your email address" required>
+                    <button type="submit">Subscribe</button>
+                </form>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© {{ getCurrentYear() || '2025' }} Luster Lane | All Rights Reserved.</p>
+        </div>
     </footer>
-
-    <script src="index.js"></script>
 
 </body>
 </html>

@@ -1,0 +1,62 @@
+<section class="section-padding container"
+    style="min-height: 80vh; display: flex; align-items: center; justify-content: center;">
+
+    <div class="auth-container"
+        style="width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.05); border: 1px solid var(--border-color);">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <h1 class="heading-lg" style="margin-bottom: 0.5rem; font-size: 2.5rem;">Welcome Back</h1>
+            <p style="color: var(--text-secondary);">Enter your details to access your Luster Lane account.</p>
+        </div>
+
+        <div class="auth-tabs">
+            <button ng-click="toggleMode(true)" ng-class="{'active': loginMode}" class="auth-tab">Sign In</button>
+            <button ng-click="toggleMode(false)" ng-class="{'active': !loginMode}" class="auth-tab">Create
+                Account</button>
+        </div>
+
+        <!-- Login Form -->
+        <form ng-show="loginMode" ng-submit="doLogin()">
+            <div class="form-group">
+                <label for="login-email">Email Address</label>
+                <input type="email" id="login-email" class="form-control" ng-model="loginData.email" required>
+            </div>
+            <div class="form-group">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" class="form-control" ng-model="loginData.password" required>
+            </div>
+
+            <div style="text-align: right; margin-bottom: 2rem;">
+                <a href="#" style="font-size: 0.85rem; color: var(--text-secondary); text-decoration: underline;">Forgot
+                    Password?</a>
+            </div>
+
+            <p ng-if="message" style="color: #ef4444; margin-bottom: 1rem; text-align: center;">{{ message }}</p>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+        </form>
+
+        <!-- Signup Form -->
+        <form ng-show="!loginMode" ng-submit="doSignup()">
+            <div class="form-group">
+                <label for="signup-name">Full Name</label>
+                <input type="text" id="signup-name" class="form-control" ng-model="signupData.name" required>
+            </div>
+            <div class="form-group">
+                <label for="signup-email">Email Address</label>
+                <input type="email" id="signup-email" class="form-control" ng-model="signupData.email" required>
+            </div>
+            <div class="form-group">
+                <label for="signup-password">Password</label>
+                <input type="password" id="signup-password" class="form-control" ng-model="signupData.password"
+                    required>
+            </div>
+            <div class="form-group">
+                <label for="signup-confirm-password">Confirm Password</label>
+                <input type="password" id="signup-confirm-password" class="form-control" ng-model="signupData.confirm"
+                    required>
+            </div>
+
+            <p ng-if="message" style="color: #ef4444; margin-bottom: 1rem; text-align: center;">{{ message }}</p>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Create Account</button>
+        </form>
+    </div>
+</section>

@@ -1,0 +1,32 @@
+<!-- Page Header -->
+<section style="background-color: var(--primary-color); color: #fff; text-align: center; padding: 4rem 1rem;">
+    <div class="container">
+        <h1 class="heading-lg" style="margin-bottom: 0.5rem; color: #fff;">The Collection</h1>
+        <p style="font-size: 1.1rem; opacity: 0.8; max-width: 600px; margin: 0 auto;">Discover our full range of
+            meticulously crafted pieces, designed to elevate your everyday and celebrate your extraordinary.</p>
+    </div>
+</section>
+
+<!-- Shop Grid -->
+<section class="section-padding container">
+    <div ng-if="loading" style="text-align: center; padding: 4rem 0;">
+        <p style="font-size: 1.2rem; color: var(--text-secondary);">Curating the collection...</p>
+    </div>
+
+    <div class="products-grid" ng-if="!loading && products.length > 0">
+        <div class="product-card" ng-repeat="product in products">
+            <div class="product-image-wrap">
+                <img ng-src="{{ product.image_url }}" alt="{{ product.name }}">
+            </div>
+
+            <h3 class="product-title">{{ product.name }}</h3>
+            <p class="product-price">${{ product.price | number:2 }}</p>
+            <button class="btn btn-add-cart" ng-click="addToCart(product)">Add to Cart</button>
+        </div>
+    </div>
+
+    <div ng-if="!loading && products.length === 0" style="text-align: center; padding: 4rem 0;">
+        <p style="font-size: 1.2rem; color: var(--text-secondary);">No products are available at this time. Please check
+            back later.</p>
+    </div>
+</section>

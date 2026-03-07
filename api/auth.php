@@ -1,13 +1,15 @@
 <?php
-// auth.php
-
-require 'config.php';
+require '../config.php';
 session_start();
 header('Content-Type: application/json');
 
 $response = ['success' => false, 'message' => 'Invalid action.'];
 
 $data = json_decode(file_get_contents('php://input'), true);
+if (!$data && isset($_GET['action'])) {
+    $data = ['action' => $_GET['action']];
+}
+
 $action = $data['action'] ?? '';
 
 if ($action === 'login') {
@@ -16,8 +18,8 @@ if ($action === 'login') {
 
     if (empty($email) || empty($password)) {
         $response['message'] = 'Please fill in all fields.';
-    } else {
-        // UPDATED: Added 'role' to the SELECT statement
+    }
+    else {
         $stmt = $conn->prepare("SELECT id, name, password_hash, role FROM users WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
@@ -29,29 +31,35 @@ if ($action === 'login') {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_name'] = $user['name'];
                 $_SESSION['logged_in'] = true;
-                // NEW: Save the user's role to the session
-                $_SESSION['user_role'] = $user['role']; 
-                
+                $_SESSION['user_role'] = $user['role'];
+
                 $response['success'] = true;
-                $response['message'] = 'Login successful! Redirecting...';
-            } else {
+                $response['message'] = 'Login successful!';
+                $response['user'] = [
+                    'id' => $user['id'],
+                    'name' => $user['name'],
+                    'role' => $user['role']
+                ];
+            }
+            else {
                 $response['message'] = 'Incorrect email or password.';
             }
-        } else {
+        }
+        else {
             $response['message'] = 'Incorrect email or password.';
         }
         $stmt->close();
     }
-
-} elseif ($action === 'signup') {
-    // Signup logic remains the same
+}
+elseif ($action === 'signup') {
     $name = $data['name'] ?? '';
     $email = $data['email'] ?? '';
     $password = $data['password'] ?? '';
-    
+
     if (empty($name) || empty($email) || empty($password)) {
         $response['message'] = 'Please fill in all fields.';
-    } else {
+    }
+    else {
         $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
@@ -59,9 +67,9 @@ if ($action === 'login') {
 
         if ($stmt->num_rows > 0) {
             $response['message'] = 'An account with this email already exists.';
-        } else {
+        }
+        else {
             $password_hash = password_hash($password, PASSWORD_BCRYPT);
-            // NOTE: The 'role' column will automatically default to 'customer' as we set it up
             $insert_stmt = $conn->prepare("INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)");
             $insert_stmt->bind_param("sss", $name, $email, $password_hash);
 
@@ -70,15 +78,43 @@ if ($action === 'login') {
                 $_SESSION['user_id'] = $new_user_id;
                 $_SESSION['user_name'] = $name;
                 $_SESSION['logged_in'] = true;
-                $_SESSION['user_role'] = 'customer'; // New users are always customers
+                $_SESSION['user_role'] = 'customer';
+
                 $response['success'] = true;
-                $response['message'] = 'Account created successfully! Logging you in...';
-            } else {
+                $response['message'] = 'Account created successfully!';
+                $response['user'] = [
+                    'id' => $new_user_id,
+                    'name' => $name,
+                    'role' => 'customer'
+                ];
+            }
+            else {
                 $response['message'] = 'Error creating account.';
             }
             $insert_stmt->close();
         }
         $stmt->close();
+    }
+}
+elseif ($action === 'logout') {
+    $_SESSION = array();
+    session_destroy();
+    $response['success'] = true;
+    $response['message'] = 'Logged out successfully.';
+}
+elseif ($action === 'session') {
+    if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
+        $response['success'] = true;
+        $response['message'] = 'User is logged in.';
+        $response['user'] = [
+            'id' => $_SESSION['user_id'],
+            'name' => $_SESSION['user_name'],
+            'role' => $_SESSION['user_role'] ?? 'customer'
+        ];
+    }
+    else {
+        $response['success'] = false;
+        $response['message'] = 'User is not logged in.';
     }
 }
 
