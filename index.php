@@ -9,8 +9,8 @@
     <link rel="stylesheet" href="app.css">
 
     <!-- Angular JS -->
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-route.js"></script>
+    <script src="angular/angular.min.js"></script>
+    <script src="angular/angular-route.js"></script>
     
     <!-- Application Logic -->
     <script src="app.js"></script>
