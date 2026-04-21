@@ -1,0 +1,233 @@
+<div class="admin-dashboard-wrapper">
+    <!-- Admin Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-logo">L</div>
+            <span>Luster Admin</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="" ng-click="setView('dashboard')" ng-class="{active: view == 'dashboard'}" class="nav-item">
+                <span class="nav-text">Home</span>
+            </a>
+            <a href="" ng-click="setView('products')" ng-class="{active: view == 'products'}" class="nav-item">
+                <span class="nav-text">Products</span>
+            </a>
+            <a href="" ng-click="setView('categories')" ng-class="{active: view == 'categories'}" class="nav-item">
+                <span class="nav-text">Categories</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Admin Main Content -->
+    <div class="admin-main">
+        <header class="admin-header">
+            <h2>{{ view | uppercase }}</h2>
+            <div class="header-actions">
+                <button ng-if="view == 'products'" ng-click="currentProduct = {}" class="btn btn-primary">Add Product</button>
+                <button ng-if="view == 'categories'" ng-click="currentCategory = {}" class="btn btn-primary">Add Category</button>
+            </div>
+        </header>
+
+        <section class="admin-content-view">
+            <!-- Dashboard View -->
+            <div ng-if="view == 'dashboard'" class="dashboard-stats">
+                <div class="glass-card stat-box">
+                    <h4>Total Products</h4>
+                    <p>{{ products.length }}</p>
+                </div>
+                <div class="glass-card stat-box">
+                    <h4>Categories</h4>
+                    <p>{{ categories.length }}</p>
+                </div>
+            </div>
+
+            <!-- Products View -->
+            <div ng-if="view == 'products'" class="glass-card product-list-card">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="p in products">
+                            <td>
+                                <div class="prod-cell">
+                                    <img ng-src="{{ p.images[0] }}" alt="" width="40">
+                                    <span>{{ p.name }}</span>
+                                </div>
+                            </td>
+                            <td>{{ p.category.name }}</td>
+                            <td>${{ p.price }}</td>
+                            <td>{{ p.inventory }}</td>
+                            <td>
+                                <button ng-click="editProduct(p)" class="btn-icon">Edit</button>
+                                <button ng-click="deleteProduct(p._id)" class="btn-icon text-danger">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Product Form (Simple Modal-like) -->
+                <div class="admin-form-overlay" ng-if="currentProduct.name !== undefined || currentProduct._id">
+                    <div class="glass-card admin-modal">
+                        <h3>{{ currentProduct._id ? 'Edit' : 'Add' }} Product</h3>
+                        <form ng-submit="saveProduct()">
+                            <input type="text" ng-model="currentProduct.name" placeholder="Name" required>
+                            <textarea ng-model="currentProduct.description" placeholder="Description"></textarea>
+                            <input type="number" ng-model="currentProduct.price" placeholder="Price">
+                            <input type="number" ng-model="currentProduct.inventory" placeholder="Stock">
+                            <select ng-model="currentProduct.category" required>
+                                <option value="">Select Category</option>
+                                <option ng-repeat="c in categories" value="{{c._id}}">{{c.name}}</option>
+                            </select>
+                            <input type="text" ng-model="currentProduct.images[0]" placeholder="Image URL">
+                            <div class="modal-actions">
+                                <button type="button" ng-click="currentProduct = {}" class="btn btn-secondary">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories View -->
+            <div ng-if="view == 'categories'" class="glass-card">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Slug</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="c in categories">
+                            <td>{{ c.name }}</td>
+                            <td>{{ c.slug }}</td>
+                            <td>
+                                <button ng-click="deleteCategory(c._id)" class="btn-icon text-danger">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</div>
+
+<style>
+    .admin-dashboard-wrapper {
+        display: flex;
+        min-height: 100vh;
+        background: #f6f6f7;
+    }
+    .admin-sidebar {
+        width: 240px;
+        background: white;
+        border-right: 1px solid #e1e3e5;
+        position: fixed;
+        height: 100vh;
+    }
+    .sidebar-brand {
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+    .brand-logo {
+        width: 32px;
+        height: 32px;
+        background: #008060;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+    }
+    .sidebar-nav {
+        padding: 1rem;
+    }
+    .nav-item {
+        display: block;
+        padding: 0.75rem;
+        color: #6d7175;
+        text-decoration: none;
+        border-radius: 8px;
+        margin-bottom: 2px;
+        font-weight: 500;
+    }
+    .nav-item.active {
+        background: #edeeef;
+        color: #202223;
+    }
+    .admin-main {
+        flex: 1;
+        margin-left: 240px;
+        padding: 2rem;
+    }
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .admin-table th, .admin-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #e1e3e5;
+    }
+    .prod-cell {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .btn-icon {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #008060;
+        font-weight: 600;
+    }
+    .text-danger { color: #d82c0d; }
+    
+    .admin-form-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+    .admin-modal {
+        width: 500px;
+        padding: 2rem;
+        background: white;
+    }
+    .admin-modal form input, .admin-modal form textarea, .admin-modal form select {
+        width: 100%;
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+        border: 1px solid #e1e3e5;
+        border-radius: 6px;
+    }
+    .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+    }
+</style>
