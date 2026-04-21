@@ -315,20 +315,34 @@ header {
     position: relative;
     width: 100%;
     aspect-ratio: 1/1;
-    margin-bottom: 1.5rem;
-    background: #f8f9fa;
-    border-radius: 8px;
-    overflow: hidden;
+    height: 300px;
+    background-color: #f8f8f8;
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
 }
 
 .product-image-wrap img {
-    max-width: 90%;
-    max-height: 90%;
-    object-fit: contain;
-    transition: transform 0.5s ease;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s;
+    position: relative;
+}
+
+/* Hide alt text and broken icon if image fails */
+.product-image-wrap img:after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f8f8f8;
 }
 
 .product-card:hover .product-image-wrap img {

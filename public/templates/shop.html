@@ -15,12 +15,13 @@
 
     <div class="products-grid" ng-if="!loading && products.length > 0">
         <div class="product-card" ng-repeat="product in products">
-            <div class="product-image-wrap">
-                <img ng-src="{{ product.image_url }}" alt="{{ product.name }}">
-            </div>
-
-            <h3 class="product-title">{{ product.name }}</h3>
-            <p class="product-price">${{ product.price | number:2 }}</p>
+            <a href="#!/product/{{product._id}}" style="text-decoration: none; color: inherit;">
+                <div class="product-image-wrap">
+                    <img ng-src="{{ product.images[0] }}" alt="{{ product.name }}">
+                </div>
+                <h3 class="product-title">{{ product.name }}</h3>
+                <p class="product-price">${{ product.price | number:2 }}</p>
+            </a>
             <button class="btn btn-add-cart" ng-click="addToCart(product)">Add to Cart</button>
         </div>
     </div>

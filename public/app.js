@@ -26,6 +26,10 @@ app.config(function ($routeProvider, $locationProvider) {
             templateUrl: 'templates/checkout.html',
             controller: 'CheckoutController'
         })
+        .when('/product/:id', {
+            templateUrl: 'templates/product-detail.html',
+            controller: 'ProductDetailController'
+        })
         .when('/login', {
             templateUrl: 'templates/login.html',
             controller: 'AuthController'
@@ -356,4 +360,25 @@ app.controller('AdminController', function ($scope, $http, API_URL) {
     // Initial load
     $scope.fetchProducts();
     $scope.fetchCategories();
+});
+
+app.controller('ProductDetailController', function ($scope, $http, $routeParams, CartService, API_URL) {
+    $scope.product = null;
+    $scope.quantity = 1;
+
+    $http.get(API_URL + '/products/' + $routeParams.id).then(function (response) {
+        if (response.data.success) {
+            $scope.product = response.data.data;
+        }
+    });
+
+    $scope.changeQty = function (delta) {
+        $scope.quantity += delta;
+        if ($scope.quantity < 1) $scope.quantity = 1;
+    };
+
+    $scope.addToCart = function (product, quantity) {
+        CartService.addToCart(product, quantity);
+        alert(quantity + ' ' + product.name + ' added to cart!');
+    };
 });
