@@ -8,47 +8,60 @@ dotenv.config();
 const seedData = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('CLEANING DATABASE...');
+    console.log('Wiping database for local image integration...');
     await Product.deleteMany({});
     await Category.deleteMany({});
 
     const categories = await Category.create([
-      { name: 'Rings', description: 'Rings' },
-      { name: 'Necklaces', description: 'Necklaces' },
-      { name: 'Bracelets', description: 'Bracelets' },
-      { name: 'Earrings', description: 'Earrings' }
+      { name: 'Rings', description: 'Exquisite Rings' },
+      { name: 'Necklaces', description: 'Elegant Necklaces' },
+      { name: 'Bracelets', description: 'Timeless Bracelets' },
+      { name: 'Wedding Bands', description: 'Eternal Wedding Bands' }
     ]);
 
-    // These are 10 HIGHLY RELIABLE Unsplash Jewelry IDs
-    const reliableIds = [
-      '1605100804763-247f67b3f8a6', // Ring
-      '1515562141207-7a88fb7ce338', // Jewelry box
-      '1599643478518-a784e5dc4c8f', // Pearl
-      '1611591437281-460bfbe1220a', // Diamond Ring
-      '1535632066927-ab7c9ab60908', // Earrings
-      '1544441893-675973e31985', // Band
-      '1584302179602-e4c3d3fd629d', // Bracelet
-      '1573408301185-9146fe634ad0', // Rings
-      '1588891823945-316489370773', // Pendant
-      '1586104240436-450efdec0560'  // Diamond
+    const localRings = [
+      'media/Rings/OP001/DSC05777.JPG', 'media/Rings/OP001/DSC05778.JPG', 'media/Rings/OP002/DSC05786.JPG',
+      'media/Rings/OP003/DSC05794.JPG', 'media/Rings/OP004/DSC05799.JPG', 'media/Rings/OP005/DSC05805.JPG',
+      'media/Rings/OP006/DSC05823.JPG', 'media/Rings/OP006/DSC05824.JPG'
+    ];
+
+    const localWeddingBands = [
+      'media/Wedding bands/OP085/DSC00361.JPG', 'media/Wedding bands/OP086/DSC00362.JPG',
+      'media/Wedding bands/OP087/DSC00364.JPG', 'media/Wedding bands/OP102/DSC00365.JPG',
+      'media/Wedding bands/OP103/DSC00368.JPG', 'media/Wedding bands/OP104/DSC00371.JPG',
+      'media/Wedding bands/OP105/DSC00374.JPG', 'media/Wedding bands/OP105/DSC00404.JPG'
     ];
 
     const products = [];
-    for (let i = 1; i <= 32; i++) {
-      const id = reliableIds[i % reliableIds.length];
+
+    // Add 16 Rings
+    for (let i = 0; i < 16; i++) {
       products.push({
-        name: `Luster Luxury Item #${i}`,
-        description: 'Exquisite jewelry piece handcrafted with premium materials and timeless design.',
-        price: 199 + (i * 25),
-        images: [`https://images.unsplash.com/photo-${id}?auto=format&fit=crop&q=80&w=800`],
-        category: categories[i % 4]._id,
+        name: `Signature Ring ${i + 1}`,
+        description: 'A beautiful handcrafted ring from our premium collection.',
+        price: 500 + (i * 50),
+        images: [localRings[i % localRings.length]],
+        category: categories[0]._id,
         inventory: 10,
         status: 'active'
       });
     }
 
+    // Add 16 Wedding Bands
+    for (let i = 0; i < 16; i++) {
+      products.push({
+        name: `Eternal Band ${i + 1}`,
+        description: 'A timeless wedding band symbolizing eternal love.',
+        price: 800 + (i * 75),
+        images: [localWeddingBands[i % localWeddingBands.length]],
+        category: categories[3]._id,
+        inventory: 15,
+        status: 'active'
+      });
+    }
+
     await Product.create(products);
-    console.log('DATABASE WIPED AND 32 NEW PRODUCTS CREATED!');
+    console.log('32 Products seeded using LOCAL IMAGES successfully!');
     process.exit();
   } catch (err) {
     console.error(err);
