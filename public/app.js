@@ -51,6 +51,25 @@ app.config(function ($routeProvider, $locationProvider) {
 app.controller('MainController', function ($scope, $rootScope, AuthService, CartService, $location) {
     $scope.currentUser = null;
     $scope.cartCount = 0;
+    $scope.toasts = [];
+
+    // Listen for toasts
+    $rootScope.$on('showToast', function (event, data) {
+        var toast = { title: data.title, message: data.message, removing: false };
+        $scope.toasts.push(toast);
+
+        setTimeout(function () {
+            $scope.$apply(function () {
+                toast.removing = true;
+            });
+            setTimeout(function () {
+                $scope.$apply(function () {
+                    var index = $scope.toasts.indexOf(toast);
+                    if (index > -1) $scope.toasts.splice(index, 1);
+                });
+            }, 500);
+        }, 3000);
+    });
 
     // Check session on load
     AuthService.checkSession().then(function (user) {
@@ -160,8 +179,14 @@ app.service('CartService', function ($rootScope) {
     };
 });
 
+app.service('NotificationService', function ($rootScope) {
+    this.show = function (title, message) {
+        $rootScope.$broadcast('showToast', { title: title, message: message });
+    };
+});
+
 // Controllers for each view
-app.controller('HomeController', function ($scope, $http, CartService, API_URL) {
+app.controller('HomeController', function ($scope, $http, CartService, API_URL, NotificationService) {
     $scope.featuredProducts = [];
 
     $http.get(API_URL + '/products').then(function (response) {
@@ -173,11 +198,11 @@ app.controller('HomeController', function ($scope, $http, CartService, API_URL) 
 
     $scope.addToCart = function (product) {
         CartService.addToCart(product, 1);
-        alert(product.name + ' added to cart!');
+        NotificationService.show('Success', product.name + ' added to cart!');
     };
 });
 
-app.controller('ShopController', function ($scope, $http, CartService, API_URL) {
+app.controller('ShopController', function ($scope, $http, CartService, API_URL, NotificationService) {
     $scope.products = [];
     $scope.loading = true;
 
@@ -190,7 +215,7 @@ app.controller('ShopController', function ($scope, $http, CartService, API_URL) 
 
     $scope.addToCart = function (product) {
         CartService.addToCart(product, 1);
-        alert(product.name + ' added to cart!');
+        NotificationService.show('Success', product.name + ' added to cart!');
     };
 });
 
@@ -261,7 +286,7 @@ app.controller('AuthController', function ($scope, AuthService, $location) {
     };
 });
 
-app.controller('CheckoutController', function ($scope, CartService, $http, $location) {
+app.controller('CheckoutController', function ($scope, CartService, $http, $location, NotificationService) {
     $scope.cart = CartService.getCart();
     $scope.total = CartService.getCartTotal();
     $scope.formData = {};
@@ -279,7 +304,7 @@ app.controller('CheckoutController', function ($scope, CartService, $http, $loca
         $http.post('api/order.php', payload).then(function (response) {
             if (response.data.success) {
                 CartService.clearCart();
-                alert('Order placed successfully!');
+                NotificationService.show('Success', 'Order placed successfully!');
                 $location.path('/');
             } else {
                 $scope.message = response.data.message;
@@ -288,7 +313,7 @@ app.controller('CheckoutController', function ($scope, CartService, $http, $loca
     };
 });
 
-app.controller('AdminController', function ($scope, $http, API_URL) {
+app.controller('AdminController', function ($scope, $http, API_URL, NotificationService) {
     $scope.view = 'dashboard';
     $scope.products = [];
     $scope.categories = [];
@@ -321,7 +346,7 @@ app.controller('AdminController', function ($scope, $http, API_URL) {
         $http({ method: method, url: url, data: $scope.currentProduct }).then(function(res) {
             $scope.fetchProducts();
             $scope.currentProduct = {};
-            alert('Product saved!');
+            NotificationService.show('Admin', 'Product saved successfully!');
         });
     };
 
@@ -362,7 +387,7 @@ app.controller('AdminController', function ($scope, $http, API_URL) {
     $scope.fetchCategories();
 });
 
-app.controller('ProductDetailController', function ($scope, $http, $routeParams, CartService, API_URL) {
+app.controller('ProductDetailController', function ($scope, $http, $routeParams, CartService, API_URL, NotificationService) {
     $scope.product = null;
     $scope.quantity = 1;
 
@@ -379,6 +404,6 @@ app.controller('ProductDetailController', function ($scope, $http, $routeParams,
 
     $scope.addToCart = function (product, quantity) {
         CartService.addToCart(product, quantity);
-        alert(quantity + ' ' + product.name + ' added to cart!');
+        NotificationService.show('Added to Cart', quantity + 'x ' + product.name);
     };
 });
