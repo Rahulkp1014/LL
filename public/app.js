@@ -47,6 +47,23 @@ app.config(function ($routeProvider, $locationProvider) {
     // $locationProvider.html5Mode(true);
 });
 
+// Auth Interceptor to add token to headers
+app.factory('AuthInterceptor', function() {
+    return {
+        request: function(config) {
+            var token = localStorage.getItem('token');
+            if (token) {
+                config.headers.Authorization = 'Bearer ' + token;
+            }
+            return config;
+        }
+    };
+});
+
+app.config(function($httpProvider) {
+    $httpProvider.interceptors.push('AuthInterceptor');
+});
+
 // Define global App Controller
 app.controller('MainController', function ($scope, $rootScope, AuthService, CartService, $location) {
     $scope.currentUser = null;
@@ -98,26 +115,49 @@ app.controller('MainController', function ($scope, $rootScope, AuthService, Cart
 app.service('AuthService', function ($http, $q) {
     this.checkSession = function () {
         var deferred = $q.defer();
-        $http.post('api/auth.php', { action: 'session' }).then(function (response) {
+        var token = localStorage.getItem('token');
+        if (!token) {
+            deferred.resolve(null);
+            return deferred.promise;
+        }
+
+        $http.post('api/auth/me', { token: token }).then(function (response) {
             if (response.data.success) {
                 deferred.resolve(response.data.user);
             } else {
+                localStorage.removeItem('token');
                 deferred.resolve(null);
             }
+        }, function() {
+            localStorage.removeItem('token');
+            deferred.resolve(null);
         });
         return deferred.promise;
     };
 
     this.login = function (email, password) {
-        return $http.post('api/auth.php', { action: 'login', email: email, password: password });
+        return $http.post('api/auth/login', { email: email, password: password }).then(function(res) {
+            if (res.data.success) {
+                localStorage.setItem('token', res.data.token);
+            }
+            return res;
+        });
     };
 
     this.signup = function (name, email, password) {
-        return $http.post('api/auth.php', { action: 'signup', name: name, email: email, password: password });
+        return $http.post('api/auth/register', { name: name, email: email, password: password }).then(function(res) {
+            if (res.data.success) {
+                localStorage.setItem('token', res.data.token);
+            }
+            return res;
+        });
     };
 
     this.logout = function () {
-        return $http.post('api/auth.php', { action: 'logout' });
+        localStorage.removeItem('token');
+        var deferred = $q.defer();
+        deferred.resolve({ data: { success: true } });
+        return deferred.promise;
     };
 });
 
@@ -313,12 +353,20 @@ app.controller('CheckoutController', function ($scope, CartService, $http, $loca
     };
 });
 
-app.controller('AdminController', function ($scope, $http, API_URL, NotificationService) {
+app.controller('AdminController', function ($scope, $http, API_URL, NotificationService, AuthService, $location) {
     $scope.view = 'dashboard';
     $scope.products = [];
     $scope.categories = [];
     $scope.currentProduct = {};
-    $scope.currentCategory = {};
+    $scope.showProductModal = false;
+
+    // Security Check: Only admin can access this dashboard
+    AuthService.checkSession().then(function(user) {
+        if (!user || user.role !== 'admin') {
+            NotificationService.show('Access Denied', 'You do not have permission to access the dashboard.');
+            $location.path('/login');
+        }
+    });
 
     $scope.setView = function(view) {
         $scope.view = view;
@@ -338,6 +386,17 @@ app.controller('AdminController', function ($scope, $http, API_URL, Notification
         });
     };
 
+    // Modal Controls
+    $scope.openProductModal = function() {
+        $scope.currentProduct = { images: [''] };
+        $scope.showProductModal = true;
+    };
+
+    $scope.closeProductModal = function() {
+        $scope.showProductModal = false;
+        $scope.currentProduct = {};
+    };
+
     // Product CRUD
     $scope.saveProduct = function() {
         var method = $scope.currentProduct._id ? 'PUT' : 'POST';
@@ -345,37 +404,29 @@ app.controller('AdminController', function ($scope, $http, API_URL, Notification
         
         $http({ method: method, url: url, data: $scope.currentProduct }).then(function(res) {
             $scope.fetchProducts();
-            $scope.currentProduct = {};
-            NotificationService.show('Admin', 'Product saved successfully!');
+            $scope.closeProductModal();
+            NotificationService.show('Inventory', 'Product catalog updated successfully.');
         });
     };
 
     $scope.editProduct = function(product) {
         $scope.currentProduct = angular.copy(product);
         $scope.currentProduct.category = product.category._id || product.category;
+        $scope.showProductModal = true;
     };
 
     $scope.deleteProduct = function(id) {
-        if (confirm('Delete product?')) {
+        if (confirm('Are you sure you want to delete this product from the inventory?')) {
             $http.delete(API_URL + '/products/' + id).then(function() {
                 $scope.fetchProducts();
+                NotificationService.show('Inventory', 'Product removed.');
             });
         }
     };
 
     // Category CRUD
-    $scope.saveCategory = function() {
-        var method = $scope.currentCategory._id ? 'PUT' : 'POST';
-        var url = API_URL + '/categories' + ($scope.currentCategory._id ? '/' + $scope.currentCategory._id : '');
-        
-        $http({ method: method, url: url, data: $scope.currentCategory }).then(function(res) {
-            $scope.fetchCategories();
-            $scope.currentCategory = {};
-        });
-    };
-
     $scope.deleteCategory = function(id) {
-        if (confirm('Delete category?')) {
+        if (confirm('Delete this category? This might affect existing products.')) {
             $http.delete(API_URL + '/categories/' + id).then(function() {
                 $scope.fetchCategories();
             });

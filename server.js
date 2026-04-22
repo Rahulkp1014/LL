@@ -27,10 +27,12 @@ mongoose.connect(process.env.MONGODB_URI)
 // Route files
 const products = require('./routes/productRoutes');
 const categories = require('./routes/categoryRoutes');
+const auth = require('./routes/authRoutes');
 
 // Mount routers
 app.use('/api/products', products);
 app.use('/api/categories', categories);
+app.use('/api/auth', auth);
 
 const PORT = process.env.PORT || 5000;
 

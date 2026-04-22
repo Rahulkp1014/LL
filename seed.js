@@ -2,15 +2,26 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const Category = require('./models/Category');
 const Product = require('./models/Product');
+const User = require('./models/User');
 
 dotenv.config();
 
 const seedData = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('Wiping database for local image integration...');
+    console.log('Wiping database...');
     await Product.deleteMany({});
     await Category.deleteMany({});
+    await User.deleteMany({});
+
+    // Create Admin User
+    await User.create({
+      name: 'Admin User',
+      email: 'admin@lusterlane.com',
+      password: 'adminpassword123',
+      role: 'admin'
+    });
+    console.log('Admin user created: admin@lusterlane.com / adminpassword123');
 
     const categories = await Category.create([
       { name: 'Rings', description: 'Exquisite Rings' },

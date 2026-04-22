@@ -3,231 +3,237 @@
     <aside class="admin-sidebar">
         <div class="sidebar-brand">
             <div class="brand-logo">L</div>
-            <span>Luster Admin</span>
+            <span>Luster Lane</span>
         </div>
         <nav class="sidebar-nav">
             <a href="" ng-click="setView('dashboard')" ng-class="{active: view == 'dashboard'}" class="nav-item">
-                <span class="nav-text">Home</span>
+                <i class="fas fa-home"></i>
+                <span class="nav-text">Overview</span>
             </a>
             <a href="" ng-click="setView('products')" ng-class="{active: view == 'products'}" class="nav-item">
+                <i class="fas fa-box"></i>
                 <span class="nav-text">Products</span>
             </a>
             <a href="" ng-click="setView('categories')" ng-class="{active: view == 'categories'}" class="nav-item">
+                <i class="fas fa-tags"></i>
                 <span class="nav-text">Categories</span>
             </a>
+            <a href="" ng-click="setView('orders')" ng-class="{active: view == 'orders'}" class="nav-item">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="nav-text">Orders</span>
+            </a>
         </nav>
+        <div class="sidebar-footer">
+            <a href="#!/" class="nav-item">
+                <i class="fas fa-external-link-alt"></i>
+                <span class="nav-text">View Store</span>
+            </a>
+            <a href="" ng-click="logout()" class="nav-item text-danger">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="nav-text">Logout</span>
+            </a>
+        </div>
     </aside>
 
     <!-- Admin Main Content -->
-    <div class="admin-main">
+    <main class="admin-main">
         <header class="admin-header">
-            <h2>{{ view | uppercase }}</h2>
+            <div>
+                <h2>{{ view == 'dashboard' ? 'Seller Dashboard' : (view | uppercase) }}</h2>
+                <p class="text-light" style="margin-top: 4px;">Welcome back, {{ currentUser.name }}</p>
+            </div>
             <div class="header-actions">
-                <button ng-if="view == 'products'" ng-click="currentProduct = {}" class="btn btn-primary">Add Product</button>
-                <button ng-if="view == 'categories'" ng-click="currentCategory = {}" class="btn btn-primary">Add Category</button>
+                <button ng-if="view == 'products'" ng-click="openProductModal()" class="admin-btn admin-btn-primary">
+                    <i class="fas fa-plus"></i> Add Product
+                </button>
+                <button ng-if="view == 'categories'" ng-click="openCategoryModal()" class="admin-btn admin-btn-primary">
+                    <i class="fas fa-plus"></i> Add Category
+                </button>
             </div>
         </header>
 
         <section class="admin-content-view">
-            <!-- Dashboard View -->
-            <div ng-if="view == 'dashboard'" class="dashboard-stats">
-                <div class="glass-card stat-box">
-                    <h4>Total Products</h4>
-                    <p>{{ products.length }}</p>
+            <!-- Dashboard Overview -->
+            <div ng-if="view == 'dashboard'">
+                <div class="dashboard-stats">
+                    <div class="glass-card stat-box">
+                        <h4>Total Revenue</h4>
+                        <p>$12,840.50</p>
+                        <span class="stat-trend trend-up">
+                            <i class="fas fa-arrow-up"></i> 12% vs last month
+                        </span>
+                    </div>
+                    <div class="glass-card stat-box">
+                        <h4>Active Products</h4>
+                        <p>{{ products.length }}</p>
+                        <span class="stat-trend">In 4 categories</span>
+                    </div>
+                    <div class="glass-card stat-box">
+                        <h4>Total Orders</h4>
+                        <p>156</p>
+                        <span class="stat-trend trend-up">
+                            <i class="fas fa-arrow-up"></i> 8% growth
+                        </span>
+                    </div>
+                    <div class="glass-card stat-box">
+                        <h4>Customers</h4>
+                        <p>1,204</p>
+                        <span class="stat-trend trend-up">
+                            <i class="fas fa-arrow-up"></i> 5% growth
+                        </span>
+                    </div>
                 </div>
-                <div class="glass-card stat-box">
-                    <h4>Categories</h4>
-                    <p>{{ categories.length }}</p>
+
+                <div class="glass-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h3 style="font-weight: 700;">Recent Orders</h3>
+                        <a href="" ng-click="setView('orders')" style="font-size: 0.875rem; color: var(--admin-primary); font-weight: 600;">View All</a>
+                    </div>
+                    <div class="admin-table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#ORD-7281</td>
+                                    <td>Emma Thompson</td>
+                                    <td>Oct 24, 2023</td>
+                                    <td>$1,250.00</td>
+                                    <td><span class="badge badge-success">Fulfilled</span></td>
+                                </tr>
+                                <tr>
+                                    <td>#ORD-7282</td>
+                                    <td>James Wilson</td>
+                                    <td>Oct 23, 2023</td>
+                                    <td>$840.00</td>
+                                    <td><span class="badge badge-warning">Processing</span></td>
+                                </tr>
+                                <tr>
+                                    <td>#ORD-7283</td>
+                                    <td>Sarah Parker</td>
+                                    <td>Oct 22, 2023</td>
+                                    <td>$2,100.00</td>
+                                    <td><span class="badge badge-success">Fulfilled</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
             <!-- Products View -->
-            <div ng-if="view == 'products'" class="glass-card product-list-card">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Product</th>
-                            <th>Category</th>
-                            <th>Price</th>
-                            <th>Stock</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="p in products">
-                            <td>
-                                <div class="prod-cell">
-                                    <img ng-src="{{ p.images[0] }}" alt="" width="40">
-                                    <span>{{ p.name }}</span>
-                                </div>
-                            </td>
-                            <td>{{ p.category.name }}</td>
-                            <td>${{ p.price }}</td>
-                            <td>{{ p.inventory }}</td>
-                            <td>
-                                <button ng-click="editProduct(p)" class="btn-icon">Edit</button>
-                                <button ng-click="deleteProduct(p._id)" class="btn-icon text-danger">Delete</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <!-- Product Form (Simple Modal-like) -->
-                <div class="admin-form-overlay" ng-if="currentProduct.name !== undefined || currentProduct._id">
-                    <div class="glass-card admin-modal">
-                        <h3>{{ currentProduct._id ? 'Edit' : 'Add' }} Product</h3>
-                        <form ng-submit="saveProduct()">
-                            <input type="text" ng-model="currentProduct.name" placeholder="Name" required>
-                            <textarea ng-model="currentProduct.description" placeholder="Description"></textarea>
-                            <input type="number" ng-model="currentProduct.price" placeholder="Price">
-                            <input type="number" ng-model="currentProduct.inventory" placeholder="Stock">
-                            <select ng-model="currentProduct.category" required>
-                                <option value="">Select Category</option>
-                                <option ng-repeat="c in categories" value="{{c._id}}">{{c.name}}</option>
-                            </select>
-                            <input type="text" ng-model="currentProduct.images[0]" placeholder="Image URL">
-                            <div class="modal-actions">
-                                <button type="button" ng-click="currentProduct = {}" class="btn btn-secondary">Cancel</button>
-                                <button type="submit" class="btn btn-primary">Save</button>
-                            </div>
-                        </form>
-                    </div>
+            <div ng-if="view == 'products'" class="glass-card">
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Inventory</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="p in products">
+                                <td>
+                                    <div class="prod-cell">
+                                        <img ng-src="{{ p.images[0] }}" alt="">
+                                        <div class="prod-info">
+                                            <h5>{{ p.name }}</h5>
+                                            <span>ID: {{ p._id.substring(0,8) }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ p.category.name || 'Uncategorized' }}</td>
+                                <td style="font-weight: 600;">${{ p.price | number:2 }}</td>
+                                <td>
+                                    <span ng-class="{'text-danger': p.inventory < 5}">{{ p.inventory }} in stock</span>
+                                </td>
+                                <td><span class="badge badge-success">{{ p.status }}</span></td>
+                                <td>
+                                    <button ng-click="editProduct(p)" class="admin-btn-icon"><i class="fas fa-edit"></i></button>
+                                    <button ng-click="deleteProduct(p._id)" class="admin-btn-icon text-danger"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
             <!-- Categories View -->
             <div ng-if="view == 'categories'" class="glass-card">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Slug</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="c in categories">
-                            <td>{{ c.name }}</td>
-                            <td>{{ c.slug }}</td>
-                            <td>
-                                <button ng-click="deleteCategory(c._id)" class="btn-icon text-danger">Delete</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Category Name</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in categories">
+                                <td style="font-weight: 600;">{{ c.name }}</td>
+                                <td>{{ c.description }}</td>
+                                <td>
+                                    <button ng-click="deleteCategory(c._id)" class="admin-btn-icon text-danger"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
+    </main>
+
+    <!-- Product Modal -->
+    <div class="admin-form-overlay" ng-if="showProductModal">
+        <div class="glass-card admin-modal">
+            <h3 style="margin-bottom: 1.5rem;">{{ currentProduct._id ? 'Edit' : 'Add' }} Product</h3>
+            <form ng-submit="saveProduct()">
+                <div class="admin-form-group">
+                    <label class="admin-label">Product Name</label>
+                    <input type="text" ng-model="currentProduct.name" class="admin-input" placeholder="e.g. Diamond Ring" required>
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-label">Description</label>
+                    <textarea ng-model="currentProduct.description" class="admin-input" rows="3" placeholder="Describe the product..."></textarea>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="admin-form-group">
+                        <label class="admin-label">Price ($)</label>
+                        <input type="number" step="0.01" ng-model="currentProduct.price" class="admin-input" required>
+                    </div>
+                    <div class="admin-form-group">
+                        <label class="admin-label">Inventory</label>
+                        <input type="number" ng-model="currentProduct.inventory" class="admin-input" required>
+                    </div>
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-label">Category</label>
+                    <select ng-model="currentProduct.category" class="admin-select" required>
+                        <option value="">Select Category</option>
+                        <option ng-repeat="c in categories" value="{{c._id}}">{{c.name}}</option>
+                    </select>
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-label">Main Image URL</label>
+                    <input type="text" ng-model="currentProduct.images[0]" class="admin-input" placeholder="media/...">
+                </div>
+                <div class="modal-actions" style="margin-top: 2rem;">
+                    <button type="button" ng-click="closeProductModal()" class="admin-btn admin-btn-secondary">Cancel</button>
+                    <button type="submit" class="admin-btn admin-btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
-
-<style>
-    .admin-dashboard-wrapper {
-        display: flex;
-        min-height: 100vh;
-        background: #f6f6f7;
-    }
-    .admin-sidebar {
-        width: 240px;
-        background: white;
-        border-right: 1px solid #e1e3e5;
-        position: fixed;
-        height: 100vh;
-    }
-    .sidebar-brand {
-        padding: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        font-weight: 700;
-        font-size: 1.25rem;
-    }
-    .brand-logo {
-        width: 32px;
-        height: 32px;
-        background: #008060;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-    }
-    .sidebar-nav {
-        padding: 1rem;
-    }
-    .nav-item {
-        display: block;
-        padding: 0.75rem;
-        color: #6d7175;
-        text-decoration: none;
-        border-radius: 8px;
-        margin-bottom: 2px;
-        font-weight: 500;
-    }
-    .nav-item.active {
-        background: #edeeef;
-        color: #202223;
-    }
-    .admin-main {
-        flex: 1;
-        margin-left: 240px;
-        padding: 2rem;
-    }
-    .admin-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
-    .admin-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    .admin-table th, .admin-table td {
-        padding: 1rem;
-        text-align: left;
-        border-bottom: 1px solid #e1e3e5;
-    }
-    .prod-cell {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-    .btn-icon {
-        background: none;
-        border: none;
-        cursor: pointer;
-        color: #008060;
-        font-weight: 600;
-    }
-    .text-danger { color: #d82c0d; }
-    
-    .admin-form-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-    }
-    .admin-modal {
-        width: 500px;
-        padding: 2rem;
-        background: white;
-    }
-    .admin-modal form input, .admin-modal form textarea, .admin-modal form select {
-        width: 100%;
-        margin-bottom: 1rem;
-        padding: 0.75rem;
-        border: 1px solid #e1e3e5;
-        border-radius: 6px;
-    }
-    .modal-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 1rem;
-    }
-</style>
